@@ -1,4 +1,4 @@
-// const Joi = require('joi');
+const Joi = require('joi');
 const express=require("express");
 const bodyParser = require('body-parser')
 const app=express();
@@ -13,33 +13,24 @@ let bookings=[];
 
 
 app.post('/api/v1/signup',(req, res)=>{
-    if(!req.body.Email){
-        res.status(400).send("email is required");
-        return;
+    const schema = Joi.object().keys({
+        Email: Joi.string().required(),
+        Password: Joi.string().regex(/^[a-zA-Z0-9]{3,30}$/).required(),
+        First_name:Joi.string().alphanum().min(3).max(30).required(),
+        Last_name:Joi.string().alphanum().min(3).max(30).required()
+    }).with('first_name','last_name','email').without('password');
+     const result=Joi.validate(req.body,schema)
+    if(result.error){
+         res.status(400).send(result.error);
     }
-    if(!req.body.Password){
-        res.status(400).send("password is required");
-        return;
-    }
-    if(!req.body.first_name){
-        res.status(400).send("first_name must be entered");
-        return;
-    }
-    if(!req.body.last_name){
-        res.status(400).send("last_name must be entered");
-        return;
-    }
-    if(!req.body.is_admin ){
-        res.status(400).send("this field required");
-        return;    
-    }
-    
+  
+     
     const create_signup={
         Email:req.body.Email,
         Password:req.body.Password,
-        first_name:req.body.first_name,
-        last_name:req.body.last_name,
-        is_admin:req.body.is_admin
+        First_name:req.body.First_name,
+        Last_name:req.body.Last_name,
+        is_admin:req.body.is_admin   
     };
     
     signup.push(create_signup);
@@ -48,14 +39,7 @@ app.post('/api/v1/signup',(req, res)=>{
 });
 
 app.post('/api/v1/signin',(req, res)=>{
-    if(!req.body.Email){
-        res.status(400).send("email is required");
-        return;
-    }
-    if(!req.body.Password){
-        res.status(400).send("pasword is required");
-        return;
-    }
+    
     const create_signin={
         Email:req.body.Email,
         Password:req.body.Password
